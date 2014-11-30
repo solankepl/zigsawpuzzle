@@ -68,8 +68,10 @@ function reloadgameClick(){
 	$(".spanTxt").html(" 00:00 ")
 	$("#timerGame").css({"display":"block"});
 	$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"none","opacity":"1"});	
-	$("#arayGigswaPuzzle").find(".sourceImg").attr("src","");
-	loadGame(imgPath,gamelevel);
+	$(".jigswaPuzzle").css({"background-color":"rgba(255,255,255,1)"});
+	//$("#arayGigswaPuzzle").find(".sourceImg").attr("src","");
+	//loadGame(imgPath,gamelevel);
+	shuffleDraggableItem();	
 }
 
 function playPauseBtnClick(){
@@ -138,15 +140,15 @@ function setSquare(colW,colH,row,column,bgPath){
 		leftPos = 0;
 		topPos +=colH;
 	}	
-	removeDuplicate();
+	//removeDuplicate();
 	shuffleDraggableItem();	
 	timerStart();
 }
 
 function shuffleDraggableItem(){	
 	var dragElements = document.querySelectorAll('.draggable');
-	var maxL = $(".jigswaPuzzle").width()+($(".column").width()*2);
-	var minL =  $(".column").width()*2;	
+	var maxL = $(".jigswaPuzzle").width()+($(".column").width()*0.5);
+	var minL =  $(".column").width()*0.5;	
 	var maxT = $(".jigswaPuzzle").height()//+$(".column").width();
 	var minT = 0//$(".column").width();
 		
@@ -154,11 +156,18 @@ function shuffleDraggableItem(){
 			var drag = dragElements[i];
 			var randomX = randomN = Math.floor(Math.random() * maxL) - minL;
 			var randomY = randomN = Math.floor(Math.random() * maxT) - minT;
-			$(drag).css({"left":randomX+"px","top":randomY+"px"});
+			$(drag).animate({
+				left: randomX,
+				top: randomY
+			  }, 1000, 'easeInOutElastic',function() {
+				// Animation complete.
+			  });
+			//$(drag).css({"left":randomX+"px","top":randomY+"px"});
 			$(drag).draggable({
 				containment: '#arayGigswaPuzzle',				
 				start: function(event, ui) { $(this).css("z-index", zindex++); }								
 			});
+			$(drag).draggable('enable'); 
 	}
 	
 	var dropElements = document.querySelectorAll('.dropzone');
