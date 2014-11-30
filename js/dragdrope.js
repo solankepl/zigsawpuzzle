@@ -1,27 +1,34 @@
-// v2 28-11-2014 created by pavan solane 
-
+// v2 28-11-2014 created by pavan solane
 var  zindex =2,
-	 imgPath ="imgs/image_1.png",
+	 imgPath ="imgs/pavan.jpg",
 	 gamelevel = "easy", 
-	 gamelevelObj = {"easy":"5-3","medium":"6-4","hard":"8-6"},
+	 gamelevelObj = {"easy":"3-3","medium":"6-4","hard":"8-6"},
 	 globalTimer,
 	 totalSeconds=0;
 	 
 $(document).ready(function() {	
+	$(".popup .btn").on("click", startGame);
+	
+});
+
+function startGame(){
+	gamelevel = $(this).html();
 	loadGame(imgPath,gamelevel);	
+	$(".startGame").hide(); 
 	$("#startOverBtn").on("click", reloadgameClick);
 	$("#gridBtn").on("click", showGridBtnClick);
 	$("#hintBtn").on("click", hintBtnClick);
 	$("#showHidetimerBtn").on("click", showHideTimerClick);
 	$("#playPauseBtn").on("click", playPauseBtnClick);
-	
-});
+}
 
 function loadGame(pathImg, levelOFGame){	
 	$("#arayGigswaPuzzle").find(".sourceImg").load(function() { 
 	    var mainImg = $(this);
 		var r = Number(gamelevelObj[levelOFGame].split("-")[0]);
 		var c = Number(gamelevelObj[levelOFGame].split("-")[1]);
+		$(".jigswaPuzzle").css({"background-color":"rgba(255,255,255,0)"});	
+		$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"block","opacity":"1"});
 		setTimeout(function(){
 			initGame(mainImg,r,c);	
 		}, 1000);		 
@@ -39,23 +46,27 @@ function hintBtnClick(){
 	if($("#arayGigswaPuzzle").find(".sourceImg").css("display") == "block"){
 		$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"none","opacity":"1"});
 		$(".dropzone").css("opacity",1);
+		$(".jigswaPuzzle").css({"background-color":"rgba(255,255,255,1)"});	
 	}else{
 		$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"block","opacity":"0.4"});
-		$(".dropzone").css("opacity",0);	
+		$(".dropzone").css("opacity",0);
+		$(".jigswaPuzzle").css({"background-color":"rgba(255,255,255,0)"});		
 	}	
 }
 
 function showHideTimerClick(){
-	if($("#timerGame").css("display")=== "inline-block"){
+	if($("#timerGame").css("display")=== "block"){
 		$("#timerGame").css({"display":"none"});		
 	}else{
-		$("#timerGame").css({"display":"inline-block"});			
+		$("#timerGame").css({"display":"block"});			
 	}
 }
 
 
 function reloadgameClick(){	
-	$("#timerGame").css({"display":"inline-block"});
+	totalSeconds=0;
+	$(".spanTxt").html(" 00:00 ")
+	$("#timerGame").css({"display":"block"});
 	$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"none","opacity":"1"});	
 	$("#arayGigswaPuzzle").find(".sourceImg").attr("src","");
 	loadGame(imgPath,gamelevel);
@@ -75,6 +86,7 @@ function timerStop(){
 }
 
 function timerStart(){
+	timerStop();
 	globalTimer = setInterval(addTime, 1000);
 }
 
@@ -105,8 +117,9 @@ function initGame(obj,row, column){
 	
 	var addJigswaContainer = "<div class='jigswaPuzzle'></div>";
 	
-	$("#arayGigswaPuzzle").append(addJigswaContainer);		
-	$(".jigswaPuzzle").css({"width":imgWidth+"px", "height":imgHeight+"px"});
+	$("#arayGigswaPuzzle").append(addJigswaContainer);	
+	$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"none","opacity":"1"});
+	$(".jigswaPuzzle").css({"width":imgWidth+"px", "height":imgHeight+"px","background-color":"rgba(255,255,255,1)"});
 	$("#arayGigswaPuzzle").css({"width":columnWidth*(row+2.3)+"px", "height":columnHeigh*(column+1.2)+"px"});
 	setSquare(columnWidth,columnHeigh,row,column,bgPath);	
 }
@@ -162,7 +175,7 @@ function shuffleDraggableItem(){
 function removeDuplicate(){
 	var $div = $("#arayGigswaPuzzle").find(".jigswaPuzzle");
 	if ($div.length > 1) {
-	   $div.not(':last').remove();	  	   	
+	   $div.not(':last').remove();
 	}
 }
 
@@ -217,7 +230,8 @@ function checkAns(){
 	}
 	
 	if(showAns){
-	   alert("done");	
+	   timerStop();
+	   alert("You Are Win");	
 	}	
 }
 
