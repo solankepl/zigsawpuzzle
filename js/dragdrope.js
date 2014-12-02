@@ -1,14 +1,19 @@
-// v2 28-11-2014 created by pavan solane
-var  zindex =2,
-	 imgPath ="imgs/pavan.jpg",
+// v3 1-12-2014 created by pavan solanke
+
+var  zindex = 2,
+	 imgPath = "imgs/pavan.jpg",
 	 gamelevel = "easy", 
-	 gamelevelObj = {"easy":"3-3","medium":"6-4","hard":"8-6"},
+	 gamelevelObj = {"easy":"5-3","medium":"6-4","hard":"8-6"},
 	 globalTimer,
-	 totalSeconds=0;
-	 
+	 totalSeconds=0,
+	 shuffleRandon=true;
+var  useragent = navigator.userAgent,
+				isIphone = !!useragent.match(/iPhone/i),
+				isIpad = !!useragent.match(/iPad/i),
+				isWinDskp = !!useragent.match(/NT/i);
+				androidPhone = !!useragent.match(/Android/i);	 
 $(document).ready(function() {	
-	$(".popup .btn").on("click", startGame);
-	
+	$(".popup .btn").on("click", startGame);	
 });
 
 function startGame(){
@@ -19,7 +24,7 @@ function startGame(){
 	$("#gridBtn").on("click", showGridBtnClick);
 	$("#hintBtn").on("click", hintBtnClick);
 	$("#showHidetimerBtn").on("click", showHideTimerClick);
-	$("#playPauseBtn").on("click", playPauseBtnClick);
+	//$("#playPauseBtn").on("click", playPauseBtnClick);
 }
 
 function loadGame(pathImg, levelOFGame){	
@@ -27,8 +32,6 @@ function loadGame(pathImg, levelOFGame){
 	    var mainImg = $(this);
 		var r = Number(gamelevelObj[levelOFGame].split("-")[0]);
 		var c = Number(gamelevelObj[levelOFGame].split("-")[1]);
-		$(".jigswaPuzzle").css({"background-color":"rgba(255,255,255,0)"});	
-		$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"block","opacity":"1"});
 		setTimeout(function(){
 			initGame(mainImg,r,c);	
 		}, 1000);		 
@@ -43,14 +46,10 @@ function showGridBtnClick(){
 }
 
 function hintBtnClick(){
-	if($("#arayGigswaPuzzle").find(".sourceImg").css("display") == "block"){
-		$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"none","opacity":"1"});
-		$(".dropzone").css("opacity",1);
-		$(".jigswaPuzzle").css({"background-color":"rgba(255,255,255,1)"});	
+	if($(".jigswaPuzzle").css("background-image") == "none"){
+		$(".jigswaPuzzle").css("background-image","url("+imgPath+")");		
 	}else{
-		$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"block","opacity":"0.4"});
-		$(".dropzone").css("opacity",0);
-		$(".jigswaPuzzle").css({"background-color":"rgba(255,255,255,0)"});		
+		$(".jigswaPuzzle").css("background-image","none");
 	}	
 }
 
@@ -62,29 +61,35 @@ function showHideTimerClick(){
 	}
 }
 
-
 function reloadgameClick(){	
 	totalSeconds=0;
-	$(".spanTxt").html(" 00:00 ")
+	timerStop();
 	$("#timerGame").css({"display":"block"});
 	$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"none","opacity":"1"});	
-	$(".jigswaPuzzle").css({"background-color":"rgba(255,255,255,1)"});
+	$(".dropzone").removeClass("showGried");
+	$(".jigswaPuzzle").css("background-image","none");	
 	//$("#arayGigswaPuzzle").find(".sourceImg").attr("src","");
-	//loadGame(imgPath,gamelevel);
 	shuffleDraggableItem();	
+	$(".spanTxt").html(" 00:00 ");
+	//loadGame(imgPath,gamelevel);
 }
 
 function playPauseBtnClick(){
 	var srcPath = $(this).find("img").attr("src");
 	if(srcPath === "imgs/pause.png"){
-		$(this).find("img").attr("src","imgs/play.png")
+		$(this).find("img").attr("src","imgs/play.png");
+		alert("timer stop");
+		timerStop();		
 	}else{
-		$(this).find("img").attr("src","imgs/pause.png")
+		$(this).find("img").attr("src","imgs/pause.png");
+		alert("timer start");
+		timerStart();
 	}
 }
 
 function timerStop(){
 	clearInterval(globalTimer);
+	globalTimer =null;
 }
 
 function timerStart(){
@@ -97,8 +102,8 @@ function addTime() {
 	var seconds = addZero(totalSeconds % 60);
 	var minute= addZero(parseInt(totalSeconds / 60));
 	var hours = addZero(parseInt(totalSeconds / 3600));	
-	var curTime = seconds +":"+ minute +" ";
-	$(".spanTxt").html(curTime)
+	var curTime =  minute +":"+ seconds+" ";
+	$(".spanTxt").html(curTime);
 }
   
 function addZero(val) {
@@ -115,14 +120,11 @@ function initGame(obj,row, column){
 	var imgHeight = obj.height();		
 	var columnWidth = imgWidth/row;
 	var columnHeigh = imgHeight/column;	
-	var bgPath = obj.attr("src");	
-	
-	var addJigswaContainer = "<div class='jigswaPuzzle'></div>";
-	
-	$("#arayGigswaPuzzle").append(addJigswaContainer);	
-	$("#arayGigswaPuzzle").find(".sourceImg").css({"display":"none","opacity":"1"});
-	$(".jigswaPuzzle").css({"width":imgWidth+"px", "height":imgHeight+"px","background-color":"rgba(255,255,255,1)"});
-	$("#arayGigswaPuzzle").css({"width":columnWidth*(row+2.3)+"px", "height":columnHeigh*(column+1.2)+"px"});
+	var bgPath = obj.attr("src");		
+	var addJigswaContainer = "<div class='jigswaPuzzle'></div>";	
+	$("#arayGigswaPuzzle").append(addJigswaContainer);		
+	$(".jigswaPuzzle").css({"width":imgWidth+"px", "height":imgHeight+"px"});
+	$("#arayGigswaPuzzle").css({"width":columnWidth*(row+2.3)+"px", "height":columnHeigh*(column+1.3)+"px"});
 	setSquare(columnWidth,columnHeigh,row,column,bgPath);	
 }
 
@@ -141,32 +143,64 @@ function setSquare(colW,colH,row,column,bgPath){
 		topPos +=colH;
 	}	
 	//removeDuplicate();
-	shuffleDraggableItem();	
-	timerStart();
+	setTimeout(function(){
+		shuffleDraggableItem();	
+	}, 1000);
+	
 }
 
 function shuffleDraggableItem(){	
 	var dragElements = document.querySelectorAll('.draggable');
+	
 	var maxL = $(".jigswaPuzzle").width()+($(".column").width()*0.5);
 	var minL =  $(".column").width()*0.5;	
 	var maxT = $(".jigswaPuzzle").height()//+$(".column").width();
 	var minT = 0//$(".column").width();
+	
+	
+	var setX = - ($(".column").width()+20);
+	var setY = 0;
+	var r = Number(gamelevelObj[gamelevel].split("-")[0]);
+	var c = Number(gamelevelObj[gamelevel].split("-")[1]);
+	
+	var setLevelWiseWidth =2.7;
+	var setLevelWiseHeight = 6;
+	
+	if(gamelevel=="medium"){
+		setLevelWiseWidth = 3.9;
+		setLevelWiseHeight = 4;
+	}if(gamelevel=="hard"){
+		setLevelWiseWidth = 6.5;
+		setLevelWiseHeight = 2;
+	}	
+	
+	var vWidth = dragElements.length-((c*2)+setLevelWiseWidth);		
+	var horzantolX = $(".jigswaPuzzle").width()/vWidth;
+	
+	//shuffleRandon
 		
 	for (var i=0; i < dragElements.length; i++) {
-			var drag = dragElements[i];
-			var randomX = randomN = Math.floor(Math.random() * maxL) - minL;
-			var randomY = randomN = Math.floor(Math.random() * maxT) - minT;
-			$(drag).animate({
-				left: randomX,
-				top: randomY
-			  }, 1000, 'easeInOutElastic',function() {
-				// Animation complete.
-			  });
+			var drag = dragElements[i];		
 			//$(drag).css({"left":randomX+"px","top":randomY+"px"});
 			$(drag).draggable({
 				containment: '#arayGigswaPuzzle',				
 				start: function(event, ui) { $(this).css("z-index", zindex++); }								
 			});
+			
+			if(shuffleRandon){
+				setAnimation($(drag),setX,setY);			
+				if(i<c){
+					setY += $(".column").height()+setLevelWiseHeight;
+				}else if(i<=(dragElements.length-r)){
+					setX += horzantolX;
+				}else{
+					setY -= $(".column").height()+setLevelWiseHeight;
+				}
+			}else{
+				var randomX = randomN = Math.floor(Math.random() * maxL) - minL;
+				var randomY = randomN = Math.floor(Math.random() * maxT) - minT;
+				setAnimation($(drag),randomX,randomY);	
+			}			
 			$(drag).draggable('enable'); 
 	}
 	
@@ -181,10 +215,20 @@ function shuffleDraggableItem(){
 	}		
 }
 
+function setAnimation(obj,xPos, yPos){
+	obj.animate({
+		left: xPos,
+		top: yPos
+	 }, 1000, 'easeInOutElastic',function() {
+		// Animation complete.
+		timerStart();
+	 });	
+}
+
 function removeDuplicate(){
 	var $div = $("#arayGigswaPuzzle").find(".jigswaPuzzle");
 	if ($div.length > 1) {
-	   $div.not(':last').remove();
+	   $div.not(':last').remove();	  	   	
 	}
 }
 
@@ -201,6 +245,7 @@ function handleDrop( event, ui) {
 			 if ( dragNumber === dropNumber ) {
 				$(this).css({"left":dragL,"top":dragT});
 				$(this).draggable('disable'); 
+				$(this).css("z-index","1");
 				/*if(dragL == (dropL-5)){
 					console.log(ui.draggable);  
 				 }*/
@@ -220,8 +265,7 @@ function setBoxPostion(className, posLeft, posTop){
 			curItem.css({"left":leftPos+"px","top":topPos+"px"});
 			curItem.attr("dtat-org-Left",leftPos);
 			curItem.attr("dtat-org-Top",topPos);
-			topPos +=100;
-									
+			topPos +=100;									
 	}	
 }
 
@@ -236,14 +280,51 @@ function checkAns(){
 			showAns = false;
 			break;
 		}
-	}
-	
+	}	
 	if(showAns){
-	   timerStop();
-	   alert("You Are Win");	
+		timerStop();	   
+	   cheackWin();	
 	}	
 }
 
 
-	
-	
+function cheackWin(){
+	var setMaddle= "loss"
+	if(!$(".dropzone").hasClass("showGried")){
+		if(gamelevel == "easy"){
+			if(totalSeconds<=50){
+				setMaddle = "Win";
+			}					
+		}else
+		if(gamelevel == "medium"){
+			if(totalSeconds<=90){
+				setMaddle = "Win";						
+			}			
+			
+		}else 
+		if(gamelevel = "hard"){
+			if(totalSeconds<=180){
+				setMaddle = "Win"	;		
+			}			
+		}				
+	} else{
+		if(gamelevel == "easy"){
+			if(totalSeconds<30){
+				setMaddle = "Win";							
+			}					
+		}else
+		if(gamelevel == "medium"){
+			if(totalSeconds <=70){
+				setMaddle = "Win";					
+			}					
+		}else 
+		if(gamelevel == "hard"){
+			if(totalSeconds<=180){
+				setMaddle = "Win";							
+			}			
+		}		
+	}
+	alert("You "+setMaddle +" game");
+	$(".popup .btn").on("click", startGame);
+}
+
